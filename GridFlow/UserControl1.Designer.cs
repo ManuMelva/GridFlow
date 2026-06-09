@@ -28,11 +28,31 @@
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
+            this.paginatedDataGridView1 = new GridFlow.Controls.PaginatedDataGridView();
+            this.SuspendLayout();
+            // 
+            // paginatedDataGridView1
+            // 
+            this.paginatedDataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.paginatedDataGridView1.Location = new System.Drawing.Point(0, 0);
+            this.paginatedDataGridView1.Name = "paginatedDataGridView1";
+            this.paginatedDataGridView1.Size = new System.Drawing.Size(800, 450);
+            this.paginatedDataGridView1.TabIndex = 0;
+            // 
+            // UserControl1
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.paginatedDataGridView1);
+            this.Name = "UserControl1";
+            this.Size = new System.Drawing.Size(800, 450);
+            this.Load += new System.EventHandler(this.UserControl1_Load);
+            this.ResumeLayout(false);
+
         }
 
         #endregion
+
+        private Controls.PaginatedDataGridView paginatedDataGridView1;
     }
 }

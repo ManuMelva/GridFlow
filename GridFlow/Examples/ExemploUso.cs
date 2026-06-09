@@ -1,28 +1,20 @@
-﻿using GridFlow.Controls;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using GridFlow.Controls;
 
-namespace GridFlow
+namespace GridFlow.Examples
 {
-    public partial class UserControl1: UserControl
+    /// <summary>
+    /// Exemplo de uso do PaginatedDataGridView
+    /// 
+    /// INSTRUÇÕES PARA USAR:
+    /// 1. Crie um novo Form no Visual Studio
+    /// 2. Abra o designer e adicione um PaginatedDataGridView (deve estar na Toolbox)
+    /// 3. Copie o código abaixo no evento Load do formulário
+    /// </summary>
+    public class ExemploUso
     {
-        public UserControl1()
-        {
-            InitializeComponent();
-        }
-
-        private void UserControl1_Load(object sender, EventArgs e)
-        {
-            ConfigurarPaginatedDataGridView(this.paginatedDataGridView1);
-        }
-
         public static void ConfigurarPaginatedDataGridView(PaginatedDataGridView paginatedGrid)
         {
             // Configurar propriedades
