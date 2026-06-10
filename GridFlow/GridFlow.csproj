@@ -42,21 +42,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controls\PaginatedDataGridView.cs">
+    <Compile Include="Controls\PaginationControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\PaginatedDataGridView.Designer.cs">
-      <DependentUpon>PaginatedDataGridView.cs</DependentUpon>
+    <Compile Include="Controls\PaginationControl.Designer.cs">
+      <DependentUpon>PaginationControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\PaginationEventArgs.cs" />
     <Compile Include="Controls\PaginationState.cs" />
     <Compile Include="Examples\ExemploUso.cs" />
-    <Compile Include="UserControl1.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="UserControl1.Designer.cs">
-      <DependentUpon>UserControl1.cs</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Service Include="{94E38DFF-614B-4cbd-B67C-F211BB35CE8B}" />
   </ItemGroup>
@@ -64,11 +58,8 @@
     <None Include="GUIA_RAPIDO.md" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Controls\PaginatedDataGridView.resx">
-      <DependentUpon>PaginatedDataGridView.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UserControl1.resx">
-      <DependentUpon>UserControl1.cs</DependentUpon>
+    <EmbeddedResource Include="Controls\PaginationControl.resx">
+      <DependentUpon>PaginationControl.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

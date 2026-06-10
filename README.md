@@ -1,104 +1,87 @@
-# PaginatedDataGridView - Documentação Completa
+# PaginationControl - Documentação Completa
 
-## 📋 Visão Geral
+## Visão Geral
 
-O `PaginatedDataGridView` é um componente WinForms customizado que herda de `UserControl` e fornece uma experiência completa de paginação server-side com suporte a DataGridView.
+O `PaginationControl` é um componente WinForms que adiciona paginação estilo web a qualquer `DataGridView`. Diferente de soluções que embutem o grid dentro do controle, o `PaginationControl` é uma barra de paginação independente que controla um `DataGridView` externo — sem conflitos com o designer do Visual Studio.
 
-## 🎯 Características Principais
+## Características Principais
 
-✅ **Paginação Server-Side** - Carregamento de dados sob demanda  
-✅ **Page Sizes Flexíveis** - Suporte para 10, 20, 50, 100 registros por página  
-✅ **Navegação Intuitiva** - Botões: Primeira, Anterior, Próxima, Última  
-✅ **Informações de Paginação** - Exibe "Página X de Y" e Total de Registros  
-✅ **TextBox de Navegação** - Digite o número da página e pressione Enter  
-✅ **ComboBox de Page Size** - Mude o tamanho de página dinamicamente  
-✅ **Eventos Customizados** - Controle total sobre o carregamento de dados  
-✅ **Thread-Safe** - Atualização segura de UI em operações assíncronas  
+- **Paginação Server-Side** — Carregamento de dados sob demanda via `DataRequested`
+- **Page Sizes Fixos** — 10, 20, 50, 100 registros por página
+- **Navegação estilo Web** — Botões de página numerados com truncamento (`1 2 3 ... 10 11 12`)
+- **Transição Suave** — Feedback visual instantâneo ao navegar ("Carregando..." + botão destacado)
+- **Design Fluent UI** — Flat buttons, cor de destaque `#0078D4`, hover `#E5F3FF`
+- **Independência total** — O `DataGridView` fica fora do controle, sem problemas de designer
+- **Thread-Safe** — Atualização segura de UI em operações assíncronas
 
-## 📦 Estrutura do Componente
+## Estrutura do Componente
 
 ```
 GridFlow.Controls/
 ├── PaginationEventArgs.cs      # EventArgs customizado
 ├── PaginationState.cs           # Gerenciador de estado
-├── PaginatedDataGridView.cs     # Classe principal
-└── PaginatedDataGridView.Designer.cs  # Componentes visuais
+├── PaginationControl.cs         # Classe principal
+└── PaginationControl.Designer.cs# Componentes visuais
 ```
 
-## 🚀 Como Usar
+## Como Usar
 
-### 1. Adicionar o Componente ao Formulário
+### 1. Adicionar ao Formulário (Designer)
+
+1. Adicione um `DataGridView` ao seu formulário (docked Fill)
+2. Adicione um `PaginationControl` ao seu formulário (docked Bottom)
+3. No código, conecte os dois:
 
 ```csharp
 using GridFlow.Controls;
 
 public partial class MyForm : Form
 {
-	private PaginatedDataGridView paginatedGrid;
+    public MyForm()
+    {
+        InitializeComponent();
 
-	public MyForm()
-	{
-		InitializeComponent();
-
-		// Criar instância
-		paginatedGrid = new PaginatedDataGridView();
-		paginatedGrid.Dock = DockStyle.Fill;
-
-		// Configurar propriedades
-		paginatedGrid.PageSize = 10;
-		paginatedGrid.EnablePaginationUI = true;
-		paginatedGrid.AllowPageSizeChange = true;
-
-		// Subscrever aos eventos
-		paginatedGrid.DataRequested += PaginatedGrid_DataRequested;
-
-		this.Controls.Add(paginatedGrid);
-
-		// Carregar primeira página
-		paginatedGrid.LoadPage(1);
-	}
+        paginationControl1.DataGrid = dataGridView1;
+        paginationControl1.DataRequested += PaginationControl_DataRequested;
+        paginationControl1.LoadPage(1);
+    }
 }
 ```
 
-### 2. Implementar o Evento DataRequested
+### 2. Ou usar o helper programático
 
 ```csharp
-private void PaginatedGrid_DataRequested(object sender, PaginationEventArgs e)
+paginationControl1.ConfigureWithGrid(dataGridView1, this);
+```
+
+### 3. Implementar o Evento DataRequested
+
+```csharp
+private void PaginationControl_DataRequested(object sender, PaginationEventArgs e)
 {
-	try
-	{
-		// e.CurrentPage - Página solicitada
-		// e.PageSize - Quantidade de registros por página
-		// e.TotalRecords - Total de registros (você deve atualizar)
-
-		// Simular chamada ao servidor
-		DataTable data = GetDataFromServer(e.CurrentPage, e.PageSize);
-
-		// Carregar dados no componente
-		paginatedGrid.LoadData(data);
-
-		// Atualizar total de registros (obtido do servidor)
-		paginatedGrid.TotalRecords = 157; // Total de registros na base de dados
-	}
-	catch (Exception ex)
-	{
-		MessageBox.Show($"Erro: {ex.Message}");
-	}
+    try
+    {
+        DataTable data = GetDataFromServer(e.CurrentPage, e.PageSize);
+        paginationControl1.LoadData(data);
+        paginationControl1.TotalRecords = 157;
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show($"Erro: {ex.Message}");
+    }
 }
 
 private DataTable GetDataFromServer(int page, int pageSize)
 {
-	// Implementar lógica de carregamento do servidor/BD
-	DataTable dt = new DataTable();
-	dt.Columns.Add("ID", typeof(int));
-	dt.Columns.Add("Nome", typeof(string));
-	// ... adicionar mais colunas conforme necessário
-
-	return dt;
+    DataTable dt = new DataTable();
+    dt.Columns.Add("ID", typeof(int));
+    dt.Columns.Add("Nome", typeof(string));
+    // ... adicionar mais colunas
+    return dt;
 }
 ```
 
-## 📋 Propriedades Públicas
+## Propriedades Públicas
 
 | Propriedade | Tipo | Descrição |
 |-------------|------|-----------|
@@ -108,13 +91,13 @@ private DataTable GetDataFromServer(int page, int pageSize)
 | `TotalPages` | int | Total de páginas (calculado automaticamente) |
 | `EnablePaginationUI` | bool | Mostrar/ocultar controles de paginação |
 | `AllowPageSizeChange` | bool | Permitir mudança de page size |
-| `DataGrid` | DataGridView | Acesso ao DataGridView interno |
+| `DataGrid` | DataGridView | Referência ao DataGridView externo |
 
-## 🎛️ Métodos Públicos
+## Métodos Públicos
 
 ```csharp
 // Carregamento de Dados
-void LoadData(DataTable data);           // Carrega dados na grid
+void LoadData(DataTable data);           // Carrega dados no DataGridView externo
 void LoadPage(int pageNumber);           // Carrega página específica
 void RefreshCurrentPage();               // Recarrega página atual
 
@@ -125,48 +108,41 @@ void GoToNextPage();                     // Próxima página
 void GoToPreviousPage();                 // Página anterior
 
 // Configuração
-void SetPageSize(int size);              // Altera tamanho de página
+void SetPageSize(int size);              // Altera tamanho de página (10, 20, 50, 100)
 ```
 
-## 📡 Eventos Customizados
+## Eventos Customizados
 
 ### PageChanging
 Disparado **ANTES** de mudar de página. Permite cancelar a mudança.
 
 ```csharp
-paginatedGrid.PageChanging += (sender, e) =>
+paginationControl1.PageChanging += (sender, e) =>
 {
-	// e.CurrentPage - página de destino
-	// e.PageSize - tamanho da página
-	// e.Cancel - defina como true para cancelar
-
-	if (ValidarPermissao())
-		e.Cancel = false;
-	else
-		e.Cancel = true; // Cancela navegação
+    if (!ValidarPermissao())
+        e.Cancel = true;
 };
 ```
 
 ### PageChanged
-Disparado **APÓS** mudar de página com sucesso.
+Disparado **APÓS** os dados serem carregados na nova página.
 
 ```csharp
-paginatedGrid.PageChanged += (sender, e) =>
+paginationControl1.PageChanged += (sender, e) =>
 {
-	Console.WriteLine($"Página alterada para: {e.CurrentPage}");
+    Console.WriteLine($"Página alterada para: {e.CurrentPage}");
 };
 ```
 
 ### DataRequested
-Disparado quando o componente necessita de dados.
+Disparado quando o componente necessita de dados. Implemente aqui a lógica de busca.
 
 ```csharp
-paginatedGrid.DataRequested += (sender, e) =>
+paginationControl1.DataRequested += (sender, e) =>
 {
-	// Implementar lógica de carregamento server-side
-	var data = GetDataFromServer(e.CurrentPage, e.PageSize);
-	paginatedGrid.LoadData(data);
-	paginatedGrid.TotalRecords = ObterTotalDeRegistros();
+    var data = GetDataFromServer(e.CurrentPage, e.PageSize);
+    paginationControl1.LoadData(data);
+    paginationControl1.TotalRecords = ObterTotalDeRegistros();
 };
 ```
 
@@ -174,36 +150,29 @@ paginatedGrid.DataRequested += (sender, e) =>
 Disparado quando o usuário altera o tamanho de página.
 
 ```csharp
-paginatedGrid.PageSizeChanged += (sender, e) =>
+paginationControl1.PageSizeChanged += (sender, e) =>
 {
-	Console.WriteLine($"Page size alterado para: {paginatedGrid.PageSize}");
+    Console.WriteLine($"Page size alterado para: {paginationControl1.PageSize}");
 };
 ```
 
-## 🎨 Customização Visual
+## Interface Visual
 
-### Acessar DataGridView Interno
-
-```csharp
-DataGridView grid = paginatedGrid.DataGrid;
-grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-grid.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
+```
+┌──────────────────────────────────────────────────────────────────┐
+│  ID │ Nome     │ Email          │ Ativo                        │
+│  ────────────────────────────────────────────────────────       │
+│  1  │ Usuário1 │ user1@email.com│ ✓                            │
+│  2  │ Usuário2 │ user2@email.com│ ✗                            │
+│  3  │ Usuário3 │ user3@email.com│ ✓                            │
+│  ...                                                             │
+├──────────────────────────────────────────────────────────────────┤
+│  « ‹ [1] [2] [3] ⋯ [10] [11] [12] › »   Mostrando 1-10 de 157  │
+│                                          [10 ▼]                 │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
-### Personalizar Aparência
-
-```csharp
-// Ocultar controles de paginação
-paginatedGrid.EnablePaginationUI = false;
-
-// Desabilitar mudança de page size
-paginatedGrid.AllowPageSizeChange = false;
-
-// Ajustar altura do componente
-paginatedGrid.Height = 600;
-```
-
-## 💡 Exemplo Completo com API
+## Exemplo Completo com API
 
 ```csharp
 using System;
@@ -212,79 +181,69 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using GridFlow.Controls;
-using Newtonsoft.Json.Linq;
 
 public partial class MyForm : Form
 {
-	private PaginatedDataGridView paginatedGrid;
-	private HttpClient httpClient = new HttpClient();
+    private PaginationControl pagination;
+    private DataGridView dataGrid;
+    private HttpClient httpClient = new HttpClient();
 
-	public MyForm()
-	{
-		InitializeComponent();
-		InitializePaginatedGrid();
-	}
+    public MyForm()
+    {
+        InitializeComponent();
+        InitializePagination();
+    }
 
-	private void InitializePaginatedGrid()
-	{
-		paginatedGrid = new PaginatedDataGridView();
-		paginatedGrid.Dock = DockStyle.Fill;
-		paginatedGrid.PageSize = 20;
-		paginatedGrid.DataRequested += PaginatedGrid_DataRequested;
-		this.Controls.Add(paginatedGrid);
+    private void InitializePagination()
+    {
+        pagination.DataGrid = dataGrid;
+        pagination.PageSize = 20;
+        pagination.DataRequested += PaginationControl_DataRequested;
+        pagination.LoadPage(1);
+    }
 
-		paginatedGrid.LoadPage(1);
-	}
+    private async void PaginationControl_DataRequested(object sender, PaginationEventArgs e)
+    {
+        try
+        {
+            var response = await httpClient.GetAsync(
+                $"https://api.example.com/users?page={e.CurrentPage}&pageSize={e.PageSize}"
+            );
 
-	private async void PaginatedGrid_DataRequested(object sender, PaginationEventArgs e)
-	{
-		try
-		{
-			// Chamar API com paginação
-			var response = await httpClient.GetAsync(
-				$"https://api.example.com/users?page={e.CurrentPage}&pageSize={e.PageSize}"
-			);
+            var content = await response.Content.ReadAsStringAsync();
+            var json = Newtonsoft.Json.Linq.JObject.Parse(content);
 
-			var content = await response.Content.ReadAsStringAsync();
-			var json = JObject.Parse(content);
+            DataTable dt = new DataTable();
+            dt.Columns.Add("ID", typeof(int));
+            dt.Columns.Add("Nome", typeof(string));
+            dt.Columns.Add("Email", typeof(string));
 
-			// Parsear dados
-			DataTable dt = new DataTable();
-			dt.Columns.Add("ID", typeof(int));
-			dt.Columns.Add("Nome", typeof(string));
-			dt.Columns.Add("Email", typeof(string));
+            foreach (var item in json["data"])
+            {
+                dt.Rows.Add(item["id"], item["name"], item["email"]);
+            }
 
-			foreach (var item in json["data"])
-			{
-				dt.Rows.Add(
-					item["id"],
-					item["name"],
-					item["email"]
-				);
-			}
-
-			paginatedGrid.LoadData(dt);
-			paginatedGrid.TotalRecords = (int)json["total"];
-		}
-		catch (Exception ex)
-		{
-			MessageBox.Show($"Erro ao carregar dados: {ex.Message}");
-		}
-	}
+            pagination.LoadData(dt);
+            pagination.TotalRecords = (int)json["total"];
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Erro ao carregar dados: {ex.Message}");
+        }
+    }
 }
 ```
 
-## ⚙️ Detalhes Técnicos
+## Detalhes Técnicos
 
 ### Thread-Safety
 O componente utiliza `Invoke` automaticamente quando operações são feitas de threads diferentes:
 
 ```csharp
-// Seguro chamar de qualquer thread
 Task.Run(() =>
 {
-	paginatedGrid.TotalRecords = 1000;
-	paginatedGrid.LoadData(myDataTable);
+    pagination.TotalRecords = 1000;
+    pagination.LoadData(myDataTable);
 });
 ```
 
@@ -292,15 +251,14 @@ Task.Run(() =>
 Páginas inválidas são automaticamente ignoradas:
 
 ```csharp
-paginatedGrid.TotalRecords = 50;
-paginatedGrid.PageSize = 10;
-paginatedGrid.TotalPages; // Retorna 5
+pagination.TotalRecords = 50;
+pagination.PageSize = 10;
+pagination.TotalPages; // Retorna 5
 
-paginatedGrid.LoadPage(10); // Inválido - página não existe
-// Mensagem de aviso é exibida automaticamente
+pagination.LoadPage(10); // Inválido — mensagem de aviso
 ```
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Componente não aparece na Toolbox
 - Reconstruir a solução: `Rebuild Solution`
@@ -308,21 +266,18 @@ paginatedGrid.LoadPage(10); // Inválido - página não existe
 - Fechar e reabrir Visual Studio
 
 ### DataGridView vazio após LoadData
+- Verificar se `DataGrid` property foi atribuída
 - Verificar se DataTable possui dados
 - Verificar se TotalRecords está configurado corretamente
-- Validar se o evento DataRequested está sendo disparado
 
 ### Botões desabilitados sempre
 - Verificar se TotalRecords está sendo atualizado
 - Validar se CurrentPage está entre 1 e TotalPages
 
-## 📝 Notas Importantes
+## Notas Importantes
 
-1. **Total de Registros**: Sempre atualizar `TotalRecords` após carregar dados
-2. **Page Size**: Apenas os valores 10, 20, 50, 100 são válidos
-3. **Eventos Assíncronos**: Use `await` em `DataRequested` para operações assíncronas
-4. **Cancelamento**: Defina `e.Cancel = true` em `PageChanging` para cancelar navegação
-
-## 📞 Suporte
-
-Para dúvidas ou problemas, consulte os exemplos em `GridFlow.Examples.FormTesteDataGridPaginado`
+1. **DataGrid property** — Sempre atribuir o `DataGridView` externo via `DataGrid` ou `ConfigureWithGrid()`
+2. **Total de Registros** — Sempre atualizar `TotalRecords` após carregar dados
+3. **Page Size** — Apenas os valores 10, 20, 50, 100 são válidos
+4. **Eventos Assíncronos** — Use `await` em `DataRequested` para operações assíncronas
+5. **Cancelamento** — Defina `e.Cancel = true` em `PageChanging` para cancelar navegação
